@@ -31,11 +31,6 @@ exports.reactPost = async (req, res) => {
 exports.getReacts = async (req, res) => {
   try {
     const reacts = await React.find({ postRef: req.params.id });
-    /*
-    const check1 = reacts.find(
-      (x) => x.reactBy.toString() == req.user.id
-    )?.react;
-    */
     const check = await React.findOne({
       postRef: req.params.id,
       reactBy: req.user.id,
