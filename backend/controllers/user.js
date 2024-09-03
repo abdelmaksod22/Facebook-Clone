@@ -6,12 +6,15 @@ const {
 const User = require("../models/User");
 const Post = require("../models/Post");
 const Code = require("../models/Code");
+
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const cloudinary = require("cloudinary");
+
 const { generateToken } = require("../helpers/tokens");
 const { sendVerificationEmail, sendResetCode } = require("../helpers/mailer");
 const generateCode = require("../helpers/generateCode");
+
 exports.register = async (req, res) => {
   try {
     const {
@@ -91,6 +94,7 @@ exports.register = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 exports.activateAccount = async (req, res) => {
   try {
     const validUser = req.user.id;
@@ -117,6 +121,7 @@ exports.activateAccount = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -147,6 +152,7 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 exports.sendVerification = async (req, res) => {
   try {
     const id = req.user.id;
@@ -169,6 +175,7 @@ exports.sendVerification = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 exports.findUser = async (req, res) => {
   try {
     const { email } = req.body;
@@ -268,6 +275,10 @@ exports.getProfile = async (req, res) => {
 
     const posts = await Post.find({ user: profile._id })
       .populate("user")
+      .populate(
+        "comments.commentBy",
+        "picture first_name last_name username commentAt"
+      )
       .sort({ createdAt: -1 });
     await profile.populate("friends", "first_name last_name username picture");
     res.json({ ...profile.toObject(), posts, friendship });
@@ -320,6 +331,7 @@ exports.updateDetails = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 exports.addFriend = async (req, res) => {
   try {
     if (req.user.id !== req.params.id) {
@@ -351,6 +363,7 @@ exports.addFriend = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 exports.cancelRequest = async (req, res) => {
   try {
     if (req.user.id !== req.params.id) {
@@ -382,6 +395,7 @@ exports.cancelRequest = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 exports.follow = async (req, res) => {
   try {
     if (req.user.id !== req.params.id) {
@@ -409,6 +423,7 @@ exports.follow = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 exports.unfollow = async (req, res) => {
   try {
     if (req.user.id !== req.params.id) {
@@ -436,6 +451,7 @@ exports.unfollow = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 exports.acceptRequest = async (req, res) => {
   try {
     if (req.user.id !== req.params.id) {
@@ -464,6 +480,7 @@ exports.acceptRequest = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 exports.unfriend = async (req, res) => {
   try {
     if (req.user.id !== req.params.id) {
@@ -499,6 +516,7 @@ exports.unfriend = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 exports.deleteRequest = async (req, res) => {
   try {
     if (req.user.id !== req.params.id) {
